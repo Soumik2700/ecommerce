@@ -2,13 +2,14 @@ import { Link } from "react-router-dom";
 import useFetch from "../utils/useFetch";
 import ProductItem from "./ProductItem";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 function ProductList() {
     const { data } = useFetch("https://dummyjson.com/products");
-    // console.log(data);
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [productsPerPage, setProductsPerPage] = useState(4); // Default for larger screens
+    const [productsPerPage, setProductsPerPage] = useState(4);
+    const searchQuery = useSelector((state) => state.search);
 
     // Update products state when data is available
     useEffect(() => {
@@ -17,35 +18,34 @@ function ProductList() {
         }
     }, [data]);
 
-    // Adjust productsPerPage based on screen size and handle resizing
+    // Filter products based on search query
+    useEffect(() => {
+        if (data && data.products) {
+            const filtered = data.products.filter((product) => {
+                const title = product.title ? product.title.toLowerCase() : "";
+                const category = product.category ? product.category.toLowerCase() : "";
+                const brand = product.brand ? product.brand.toLowerCase() : "";
+                const query = searchQuery.toLowerCase();
+
+                return title.includes(query) || category.includes(query) || brand.includes(query);
+            });
+            setProducts(filtered);
+            setCurrentPage(1); // Reset to first page when search changes
+        }
+    }, [searchQuery, data]);
+
+    // Adjust productsPerPage based on screen size
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth <= 1024) {
-                setProductsPerPage(2);  // 2 items per page for small screens
-            } else {
-                setProductsPerPage(4);  // 4 items per page for medium screens
-            }
+            setProductsPerPage(window.innerWidth <= 1024 ? 2 : 4);
         };
-
-        // Call handleResize immediately to set the correct products per page
         handleResize();
-
-        // Listen for window resizing
-        window.addEventListener('resize', handleResize);
-
-        // Cleanup on unmount
-        return () => {
-            window.removeEventListener('resize', handleResize);
-        };
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    // console.log(products.length, productsPerPage)
-
-    // Calculate total pages
+    // Pagination logic
     const totalPages = Math.ceil(products.length / productsPerPage);
-    // console.log("total page", totalPages);
-
-    // Get products for the current page
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
     const paginatedProducts = products.slice(startIndex, endIndex);
@@ -59,17 +59,18 @@ function ProductList() {
                         {paginatedProducts.map((product) => (
                             <Link key={product.id} to={`productDetails/${product.id}`}>
                                 <ProductItem key={product.id} product={product} />
-
                             </Link>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-center">Loading products...</p>
+                    <p className="text-center text-red-500 font-semibold text-lg">
+                        {searchQuery ? "Sorry, no products found!" : "Loading products..."}
+                    </p>
                 )}
             </div>
 
             {/* Pagination Buttons */}
-            {totalPages > 1 && (
+            {totalPages > 1 && paginatedProducts.length > 0 && (
                 <div className="flex gap-2 mt-4">
                     <button
                         className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"

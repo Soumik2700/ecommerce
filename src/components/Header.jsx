@@ -1,8 +1,13 @@
 import { IoIosArrowDropdown } from "react-icons/io";
 import logo from "../assets/Logo.png"
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { setSearchQuery } from "../utils/productStore";
 // import "./Header.css";
 function Header() {
+
+    const [search, setSearch] = useState("");
+    const dispatch = useDispatch();
 
     return (
         <div className="w-full bg-slate-300 flex flex-col">
@@ -22,7 +27,7 @@ function Header() {
                         placeholder="Search products"
                         onChange={(e)=> setSearch(e.target.value)}
                     />
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg" onClick={()=>dispatch(setSearchQuery(search))}>Search</button>
                 </div>
 
                 {/* Cart */}
