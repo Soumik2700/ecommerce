@@ -1,12 +1,13 @@
-import { StrictMode } from 'react'
+import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import ProductList from './components/ProductList.jsx'
-import ProductDetails from './components/ProductDetails.jsx'
 import Error from './components/Error.jsx'
-import Cart from './components/Cart.jsx'
+
+const ProductDetails = lazy(()=>import("./components/ProductDetails.jsx"));
+const Cart = lazy(()=> import("./components/Cart.jsx"));
 
 const appRouter = createBrowserRouter([
   {
@@ -20,7 +21,7 @@ const appRouter = createBrowserRouter([
       },
       {
         path: "productDetails/:id",
-        element: <ProductDetails />,
+        element: <Suspense><ProductDetails /></Suspense>,
       },
       {
         path: ":category",
@@ -28,7 +29,7 @@ const appRouter = createBrowserRouter([
       },
       {
         path:"/cart",
-        element:<Cart/>
+        element: <Suspense><Cart /></Suspense>
       }
     ],
   },

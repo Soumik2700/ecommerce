@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 function ProductList() {
-    const { data } = useFetch("https://dummyjson.com/products");
+    const { data, error, loading } = useFetch("https://dummyjson.com/products");
     const [products, setProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(4);
     const searchQuery = useSelector((state) => state.search);
     const [hasProduct, setHasProduct] = useState(false);
+    const [filteringLoading, setFilteringLoading] = useState(false); // New state
 
     // Update products state when data is available
     useEffect(() => {
@@ -22,17 +23,24 @@ function ProductList() {
     // Filter products based on search query
     useEffect(() => {
         if (data && data.products) {
-            const filtered = data.products.filter((product) => {
-                const title = product.title ? product.title.toLowerCase() : "";
-                const category = product.category ? product.category.toLowerCase() : "";
-                const brand = product.brand ? product.brand.toLowerCase() : "";
-                const query = searchQuery.toLowerCase();
+            setFilteringLoading(true); // Start loading
 
-                return title.includes(query) || category.includes(query) || brand.includes(query);
-            });
-            setProducts(filtered);
-            setCurrentPage(1); // Reset to first page when search changes
-            setHasProduct(true);
+            setTimeout(() => { // Simulate delay to show loading effect
+                const filtered = data.products.filter((product) => {
+                    const title = product.title ? product.title.toLowerCase() : "";
+                    const category = product.category ? product.category.toLowerCase() : "";
+                    const brand = product.brand ? product.brand.toLowerCase() : "";
+                    const query = searchQuery.toLowerCase();
+
+                    return title.includes(query) || category.includes(query) || brand.includes(query);
+                });
+
+                setProducts(filtered);
+                setCurrentPage(1); // Reset to first page when search changes
+                setHasProduct(filtered.length > 0);
+                // setHasSearchQuery(false);
+                setFilteringLoading(false); // Stop loading
+            }, 500); // Delay for smoother effect
         }
     }, [searchQuery, data]);
 
@@ -41,7 +49,7 @@ function ProductList() {
         const handleResize = () => {
             setProductsPerPage(window.innerWidth <= 1024 ? 2 : 4);
         };
-        // handleResize();
+        handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
@@ -56,7 +64,11 @@ function ProductList() {
         <div className="w-full flex flex-col items-center">
             {/* Product List */}
             <div className="w-[95%] border productList p-4" style={{ height: "700px", overflow: "hidden" }}>
-                {paginatedProducts.length > 0 ? (
+                {loading || filteringLoading ? ( // Show loading during fetch or filtering
+                    <p className="text-center text-blue-500 font-semibold text-lg">Loading products...</p>
+                ) : error ? (
+                    <p className="text-center text-red-500 font-semibold text-lg">Error: {error}</p>
+                ) : paginatedProducts.length > 0 ? (
                     <div className="flex flex-wrap justify-center gap-4">
                         {paginatedProducts.map((product) => (
                             <Link key={product.id} to={`/productDetails/${product.id}`}>
@@ -66,7 +78,7 @@ function ProductList() {
                     </div>
                 ) : (
                     <p className="text-center text-red-500 font-semibold text-lg">
-                        {hasProduct ? "Sorry, no products found!" : "Loading products..."}
+                        {hasProduct ? "Sorry, no products found!" : "No products available!"}
                     </p>
                 )}
             </div>

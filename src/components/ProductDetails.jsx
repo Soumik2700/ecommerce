@@ -1,11 +1,10 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams} from "react-router-dom";
 import useFetch from "../utils/useFetch";
 import { useDispatch } from "react-redux";
 import { setItem } from "../utils/cartSlice";
 
 function ProductDetails() {
     const { id } = useParams();
-    const navigate = useNavigate(); // ✅ Added navigation
     const { data, error, loading } = useFetch(`https://dummyjson.com/products/${id}`);
     const dispatch = useDispatch();
 

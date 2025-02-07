@@ -1,10 +1,14 @@
 /* eslint-disable react/prop-types */
-// import * as React from "react";
 import Rating from "@mui/material/Rating";
 import Stack from "@mui/material/Stack";
+import { useDispatch } from "react-redux";
+import { setItem } from "../utils/cartSlice";
 
 function ProductItem(props) {
+    const dispatch = useDispatch();
+
     const {
+        id,
         availabilityStatus,
         brand,
         category,
@@ -17,14 +21,29 @@ function ProductItem(props) {
         title
     } = props.product;
 
-    // console.log(props.product);
+    // Function to handle adding item to the cart
+    const handleAddToCart = (e) => {
+        e.stopPropagation();  // Prevents event bubbling
+        e.preventDefault();   // Stops navigation if inside a Link
+
+        dispatch(
+            setItem({
+                id,
+                title,
+                price,
+                thumbnail,
+                quantity: 1, // Default quantity
+            })
+        );
+    };
+
 
     return (
-        <div className="w-[660px] h-[330px] bg-white shadow-lg rounded-lg overflow-hidden flex border border-gray-200 hover:shadow-xl transition-shadow duration-300">
+        <div className="productItems w-[660px] h-[330px] bg-white shadow-lg rounded-lg overflow-hidden flex border border-gray-200 hover:shadow-xl transition-shadow duration-300">
             {/* Left: Image Section */}
             <div className="w-[40%] h-full bg-gray-100 flex flex-col items-center justify-center p-2">
                 <div className="w-full h-[80%] flex items-center justify-center">
-                    <img src={thumbnail} alt={title} className="w-full h-full object-cover rounded-lg" />
+                    <img src={thumbnail} alt={title} className="w-full h-full object-cover rounded-lg productImg" />
                 </div>
                 <div className="w-full h-[20%] flex flex-col items-center mt-2">
                     <h1 className="text-md font-semibold text-gray-800">{title}</h1>
@@ -64,6 +83,16 @@ function ProductItem(props) {
                             <span className="text-red-500 font-medium">{stock} left</span>
                         </div>
                     </div>
+                </div>
+
+                {/* Add to Cart Button */}
+                <div className="w-full h-full p-2 flex justify-center items-center">
+                    <button
+                        className="w-1/2 shadow bg-blue-600 rounded-lg font-bold text-gray-100 px-4 py-2 hover:bg-blue-700 transition"
+                        onClick={handleAddToCart}
+                    >
+                        Add to cart
+                    </button>
                 </div>
 
                 {/* Shipping Information */}
