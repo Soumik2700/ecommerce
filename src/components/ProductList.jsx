@@ -10,6 +10,7 @@ function ProductList() {
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(4);
     const searchQuery = useSelector((state) => state.search);
+    const [hasProduct, setHasProduct] = useState(false);
 
     // Update products state when data is available
     useEffect(() => {
@@ -31,6 +32,7 @@ function ProductList() {
             });
             setProducts(filtered);
             setCurrentPage(1); // Reset to first page when search changes
+            setHasProduct(true);
         }
     }, [searchQuery, data]);
 
@@ -39,7 +41,7 @@ function ProductList() {
         const handleResize = () => {
             setProductsPerPage(window.innerWidth <= 1024 ? 2 : 4);
         };
-        handleResize();
+        // handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
@@ -57,14 +59,14 @@ function ProductList() {
                 {paginatedProducts.length > 0 ? (
                     <div className="flex flex-wrap justify-center gap-4">
                         {paginatedProducts.map((product) => (
-                            <Link key={product.id} to={`productDetails/${product.id}`}>
+                            <Link key={product.id} to={`/productDetails/${product.id}`}>
                                 <ProductItem key={product.id} product={product} />
                             </Link>
                         ))}
                     </div>
                 ) : (
                     <p className="text-center text-red-500 font-semibold text-lg">
-                        {searchQuery ? "Sorry, no products found!" : "Loading products..."}
+                        {hasProduct ? "Sorry, no products found!" : "Loading products..."}
                     </p>
                 )}
             </div>

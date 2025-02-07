@@ -14,8 +14,10 @@ function App() {
   return (
     <main className='body'>
     <Provider store={store}>
-      <Header />
-      <Outlet />
+     <div className='w-full h-auto'>
+          <Header />
+          <Outlet />
+     </div>
     </Provider>
       <Footer/>
     </main>
