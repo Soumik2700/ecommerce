@@ -108,7 +108,7 @@ function Header() {
                                 }}>Furniture</li>
                                 <li className="p-2 hover:bg-amber-500 cursor-pointer" onClick={() => {
                                     navigate("/home-decoration")
-                                    dispatch(setSearchQuery("/furniture"))
+                                    dispatch(setSearchQuery("furniture"))
                                 }}>Home Decoration</li>
 
                             </ul>
