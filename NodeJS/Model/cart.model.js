@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+//Schema declaration for cart
 const cartSchema = new mongoose.Schema({
     productId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -12,4 +13,5 @@ const cartSchema = new mongoose.Schema({
     }
 })
 
+//Make collection
 export default mongoose.model("Cart", cartSchema);
